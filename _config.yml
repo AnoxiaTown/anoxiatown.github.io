@@ -57,10 +57,17 @@ index_generator:
 category_map: 
 	编程: programming
 	生活: life
+	娱乐: enjoyment
 	其他: other
 tag_map: 
+	C语言: C
+	C++语言: C++
+	Java语言: JAVA
+	汇编语言: Assembly
 	JVM: JVM
 	Redis: Redis
+	Kafka: Kafka
+	JSON: JSON
 	编译原理: Compiler
 
 # Date / Time format
