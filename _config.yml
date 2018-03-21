@@ -53,12 +53,12 @@ index_generator:
   order_by: -date
   
 # Category & Tag
-default_category: uncategorized
-category_map:
+#default_category: uncategorized
+category_map: 
 	编程: programming
 	生活: life
 	其他: other
-tag_map:
+tag_map: 
 	JVM: JVM
 	Redis: Redis
 	编译原理: Compiler
