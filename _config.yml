@@ -57,8 +57,7 @@ index_generator:
 category_map: 
 	编程: programming
 	生活: life
-	娱乐: enjoyment
-	其他: other
+
 tag_map: 
 	C语言: C
 	C++语言: C++
@@ -69,6 +68,10 @@ tag_map:
 	Kafka: Kafka
 	JSON: JSON
 	编译原理: Compiler
+	MySQL: MySQL
+	JDBC驱动: JDBC-Driver
+	RPC框架: RPC-Framework
+	操作系统: Operating-System
 
 # Date / Time format
 ## Hexo uses Moment.js to parse and display date
