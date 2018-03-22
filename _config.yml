@@ -3,7 +3,7 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: AnoxiaTown's Blog
+title: AnoxiaTown(瘦马)
 subtitle: 瘦马出品,必属精品
 description: 一个善良,缺少些运气的码农
 author: AnoxiaTown
@@ -57,7 +57,6 @@ index_generator:
 category_map: 
 	编程: programming
 	生活: life
-
 tag_map: 
 	C语言: C
 	C++语言: C++
