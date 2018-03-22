@@ -1,5 +1,5 @@
 ---
-title: tags-categories-demo
+title: 展示标签和分类Demo
 date: 2018-03-21 16:41:15
 categories: 
 	- 编程
@@ -22,9 +22,6 @@ tags:
 
 # 展示下有哪些tags和categories.
 
-## 展示下有哪些tags.
-
-## 展示下有哪些categories.
 
 ---
 
