@@ -71,6 +71,7 @@ tag_map:
 	JDBC驱动: JDBC-Driver
 	RPC框架: RPC-Framework
 	操作系统: Operating-System
+	消息队列: Message-Queue
 
 # Date / Time format
 ## Hexo uses Moment.js to parse and display date
