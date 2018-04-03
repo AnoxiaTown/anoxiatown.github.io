@@ -5,7 +5,6 @@ categories:
 	- 编程
 tags: 
 	- 消息队列
-	- Kafka
 ---
 
 

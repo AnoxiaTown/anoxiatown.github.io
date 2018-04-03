@@ -4,7 +4,7 @@
 
 # Site
 title: AnoxiaTown(瘦马)
-subtitle: 瘦马出品,必属精品
+subtitle: 黑曼巴
 description: 一个善良,缺少些运气的码农
 author: AnoxiaTown
 language: zh-Hans
@@ -56,7 +56,6 @@ index_generator:
 #default_category: uncategorized
 category_map: 
 	编程: programming
-	生活: life
 tag_map: 
 	C语言: C
 	C++语言: C++
@@ -64,14 +63,16 @@ tag_map:
 	汇编语言: Assembly
 	JVM: JVM
 	Redis: Redis
-	Kafka: Kafka
-	JSON: JSON
+	消息队列: Message-Queue
 	编译原理: Compiler
-	MySQL: MySQL
-	JDBC驱动: JDBC-Driver
+	MySQL数据库: MySQL
 	RPC框架: RPC-Framework
 	操作系统: Operating-System
-	消息队列: Message-Queue
+	设计模式: Design-Patterns
+	面试整理: Technique-Interviews
+	架构: Architecture
+	优化和坑: Tuning-And-Pits
+	杂项: Miscellaneous
 
 # Date / Time format
 ## Hexo uses Moment.js to parse and display date
