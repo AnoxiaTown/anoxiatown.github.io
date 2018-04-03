@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="消息队列,Kafka," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="分布式环境下,系统之间通信,通常有HTTP,MQ,RPC这么三种; MQ的常见用途 异步处理 应用解耦 流量削锋 消息通讯  MQ用途举例 用户注册后,要发注册邮件和注册短信 用户下单后,订单系统需要通知库存系统(这个例子不是很好,可能有人说下单扣库存必须状态一致)  秒杀,团抢活动,日志处理 消息队列一般都内置了高效的通信机制,因此也可以用在纯的消息通讯,点对点或发布订阅模式  JMS消息服务J">
+<meta name="keywords" content="消息队列,Kafka">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何选择消息队列?各大MQ对比">
+<meta property="og:url" content="http://yoursite.com/2018/03/26/how-to-choose-mq/index.html">
+<meta property="og:site_name" content="AnoxiaTown(瘦马)">
+<meta property="og:description" content="分布式环境下,系统之间通信,通常有HTTP,MQ,RPC这么三种; MQ的常见用途 异步处理 应用解耦 流量削锋 消息通讯  MQ用途举例 用户注册后,要发注册邮件和注册短信 用户下单后,订单系统需要通知库存系统(这个例子不是很好,可能有人说下单扣库存必须状态一致)  秒杀,团抢活动,日志处理 消息队列一般都内置了高效的通信机制,因此也可以用在纯的消息通讯,点对点或发布订阅模式  JMS消息服务J">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-04-03T03:04:00.917Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="如何选择消息队列?各大MQ对比">
+<meta name="twitter:description" content="分布式环境下,系统之间通信,通常有HTTP,MQ,RPC这么三种; MQ的常见用途 异步处理 应用解耦 流量削锋 消息通讯  MQ用途举例 用户注册后,要发注册邮件和注册短信 用户下单后,订单系统需要通知库存系统(这个例子不是很好,可能有人说下单扣库存必须状态一致)  秒杀,团抢活动,日志处理 消息队列一般都内置了高效的通信机制,因此也可以用在纯的消息通讯,点对点或发布订阅模式  JMS消息服务J">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/03/26/how-to-choose-mq/"/>
+
+
+
+
+
+  <title>如何选择消息队列?各大MQ对比 | AnoxiaTown(瘦马)</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">AnoxiaTown(瘦马)</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">瘦马出品,必属精品</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/03/26/how-to-choose-mq/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="AnoxiaTown">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/JessicaAlba.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="AnoxiaTown(瘦马)">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">如何选择消息队列?各大MQ对比</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-03-26T11:29:09+08:00">
+                2018-03-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/programming/" itemprop="url" rel="index">
+                    <span itemprop="name">编程</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+            <div class="post-wordcount">
+              
+                
+                  <span class="post-meta-divider">|</span>
+                
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-file-word-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">字数统计&#58;</span>
+                
+                <span title="字数统计">
+                  2,031
+                </span>
+              
+
+              
+                <span class="post-meta-divider">|</span>
+              
+
+              
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-clock-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">阅读时长 &asymp;</span>
+                
+                <span title="阅读时长">
+                  7
+                </span>
+              
+            </div>
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>分布式环境下,系统之间通信,通常有HTTP,MQ,RPC这么三种;</p>
+<h2 id="MQ的常见用途"><a href="#MQ的常见用途" class="headerlink" title="MQ的常见用途"></a>MQ的常见用途</h2><ol>
+<li>异步处理</li>
+<li>应用解耦</li>
+<li>流量削锋</li>
+<li>消息通讯</li>
+</ol>
+<h2 id="MQ用途举例"><a href="#MQ用途举例" class="headerlink" title="MQ用途举例"></a>MQ用途举例</h2><ol>
+<li>用户注册后,要发注册邮件和注册短信</li>
+<li>用户下单后,订单系统需要通知库存系统(这个例子不是很好,可能有人说下单扣库存必须状态一致) </li>
+<li>秒杀,团抢活动,日志处理</li>
+<li>消息队列一般都内置了高效的通信机制,因此也可以用在纯的消息通讯,点对点或发布订阅模式</li>
+</ol>
+<h2 id="JMS消息服务"><a href="#JMS消息服务" class="headerlink" title="JMS消息服务"></a>JMS消息服务</h2><p>JMS-API是一个消息服务的标准/规范,允许应用程序基于JavaEE平台创建,发送,接收和读取消息</p>
+<p>在JMS标准中,有两种消息模型P2P(Point to Point),Publish/Subscribe(Pub/Sub)</p>
+<h3 id="P2P模式"><a href="#P2P模式" class="headerlink" title="P2P模式"></a>P2P模式</h3><p>包含三个角色: 消息队列(Queue),发送者(Sender),接收者(Receiver);</p>
+<p>每个消息都被发送到一个特定的队列,接收者从队列中获取消息,队列保留着消息,直到他们被消费或超时</p>
+<h3 id="Pub-Sub模式"><a href="#Pub-Sub模式" class="headerlink" title="Pub/Sub模式"></a>Pub/Sub模式</h3><p>包含三个角色: 主题(Topic),发布者(Publisher),订阅者(Subscriber); </p>
+<p>多个发布者将消息发送到Topic,系统将这些消息传递给多个订阅者</p>
+<hr>
+<p>一般商用的容器,比如WebLogic,JBoss,都支持JMS标准,开发上很方便,但免费的比如Tomcat,Jetty等则需要使用第三方的消息中间件;</p>
+<p><strong>本文探讨MQ如下</strong></p>
+<h2 id="ActiveMQ"><a href="#ActiveMQ" class="headerlink" title="ActiveMQ"></a>ActiveMQ</h2><ol>
+<li>符合JavaEE中JMS规范的MQ实现,同时也不局限JMS规范,也支持其他一些MQ协议如stomp协议、AMQP协议等</li>
+<li>从诞生起就是为了企业应用而设计的,JMS规范本身也是企业应用系统的规范,并不适合互联网应用</li>
+<li>互联网应用通常面对的是海量的数据,并且通常对事务一致性的要求相对较弱,而企业应用对事务一致性的要求就相对很高</li>
+<li>互联网应用为了处理大量请求,通常采用集群处理的方式,而JMS规范并不重视分布式应用,这个集群不仅仅是服务端broker的集群,还包括生产者和消费者都可能是一个又一个集群,而传统的JMS规范是没有明确处理这些情况的</li>
+<li>互联网应用还有一个问题是异构系统特别多,而JMS规范只是JavaEE这个平台上的规范,对异构系统的接入也是一个比较麻烦的地方,不同的实现有很大的差异</li>
+</ol>
+<p><a href="http://www.iteye.com/magazines/107" target="_blank" rel="noopener">MetaQ作者庄晓丹专访</a></p>
+<h2 id="RabbitMQ"><a href="#RabbitMQ" class="headerlink" title="RabbitMQ"></a>RabbitMQ</h2><ol>
+<li>RabbitMQ是使用Erlang编写的一个开源的消息队列,本身支持很多的协议: AMQP,XMPP,SMTP,STOMP,也正因如此,它非常重量级,更适合于企业级的开发</li>
+<li>同时实现了Broker构架,这意味着消息在发送给客户端时先在中心队列排队,对路由,负载均衡或者数据持久化都有很好的支持</li>
+<li>它的实现语言是天生具备高并发高可用的erlang语言,AMQP协议更多用在企业系统内,对数据一致性,稳定性和可靠性要求很高的场景,对性能和吞吐量还在其次</li>
+</ol>
+<h2 id="ZeroMQ"><a href="#ZeroMQ" class="headerlink" title="ZeroMQ"></a>ZeroMQ</h2><ol>
+<li>ZeroMQ号称最快的消息队列系统,尤其针对大吞吐量的需求场景;仅提供非持久性的队列,也就是说如果宕机,数据将会丢失</li>
+<li>其中,Twitter的Storm 0.9.0以前的版本中默认使用ZeroMQ作为数据流的传输(Storm从0.9版本开始同时支持ZeroMQ和Netty作为传输模块)</li>
+<li>ZeroMQ只是一个网络编程的Pattern库,将常见的网络请求形式(分组管理,链接管理,发布订阅等)模式化,组件化</li>
+<li>简而言之socket之上,MQ之下;对于MQ来说,网络传输只是它的一部分,更多需要处理的是消息存储,路由,Broker服务发现和查找,事务,消费模式(ack,重投等),集群服务等</li>
+</ol>
+<h2 id="Kafka"><a href="#Kafka" class="headerlink" title="Kafka"></a>Kafka</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>Kafka是Linkedin开源的MQ系统,主要特点是基于Pull模式来处理消息,追求高吞吐量; 一开始的目的就是用于日志收集和传输,0.8开始支持复制(High Available),不支持事务,适合产生大量数据的互联网服务的数据收集业务;Kafka是可靠的分布式日志存储服务,用简单的话来说,你可以把Kafka当作可顺序写入的一大卷磁带,可以随时倒带,快进到某个时间点重放;</p>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><ol>
+<li>快速持久化,可以在O(1)的系统开销下进行消息持久化</li>
+<li>高吞吐,在一台普通服务器上可以达到10W/s的吞吐速率</li>
+<li>完全的分布式系统,Broker,Producer,Consumer都原生自动支持分布式,自动实现负载均衡</li>
+<li>同时支持离线和实时处理(搞两个Consumer Group即可)</li>
+</ol>
+<h3 id="Kafka和RabbitMQ比较"><a href="#Kafka和RabbitMQ比较" class="headerlink" title="Kafka和RabbitMQ比较"></a>Kafka和RabbitMQ比较</h3><p><a href="http://www.quora.com/What-are-the-differences-between-Apache-Kafka-and-RabbitMQ" target="_blank" rel="noopener">最权威的是kafka的提交者写一篇文章</a></p>
+<ol>
+<li>RabbitMQ比Kafka成熟,在可用性,稳定性,可靠性,RabbitMQ超过Kafka</li>
+<li>Kafka设计的初衷就是处理日志的,可以看做是一个日志系统,针对性很强,所以它并没有具备一个成熟MQ应该具备的特性</li>
+<li>Kafka的性能(吞吐量,TPS)比RabbitMQ要强,这篇文章的作者认为,两者在这方面没有可比性</li>
+</ol>
+<h3 id="抉择"><a href="#抉择" class="headerlink" title="抉择"></a>抉择</h3><ol>
+<li>Kafka在开源许可证、产品活跃度、性能、安全性、可扩展性等方面优于RabbitMQ</li>
+<li>Kafka采用的许可证更宽松，活跃度更高，性能远高于RabbitMQ，在安全性和可扩展性方面能够提供更好的保障</li>
+<li>Kafka仅在功能上略少于RabbitMQ，但是已经具备了主要的功能</li>
+</ol>
+<h2 id="MetaQ"><a href="#MetaQ" class="headerlink" title="MetaQ"></a>MetaQ</h2><ol>
+<li>现在metaQ其实有两个大分支了,一个是庄晓丹维护的已开源的,另外一个是淘宝内部的,本质结构原理没太大区别,只不过开源的已经去掉了对淘系相关的依赖;</li>
+<li>然后淘系的metaQ已经到3.*版本了,但是文档比较乱,深入到细节时,发现好乱,一个点有好几种说法,火大,干脆自己看metaq的源码,有点意思,做个笔记记录下</li>
+<li>怕我以后忘记了,有少量的章节和图片从内网拿来的,大部分是自己写的 <a href="http://jameswxx.iteye.com/blog/2034111" target="_blank" rel="noopener">樵夫后院-MetaQ架构原理</a></li>
+<li>Kafka用Scala写的,MetaQ用Java实现;</li>
+<li>参考Kafka实现的,具体可以看看<a href="http://www.iteye.com/magazines/107" target="_blank" rel="noopener">作者的采访</a> </li>
+</ol>
+<h2 id="RocketMQ"><a href="#RocketMQ" class="headerlink" title="RocketMQ"></a>RocketMQ</h2><ol>
+<li>RocketMQ的前身是MetaQ,当Metaq3.0发布时,产品名称改为RocketMQ</li>
+<li>RocketMQ(一)介绍: <a href="https://blog.csdn.net/zshake/article/details/64586142" target="_blank" rel="noopener">https://blog.csdn.net/zshake/article/details/64586142</a></li>
+<li>说说MQ之RocketMQ: <a href="http://valleylord.github.io/post/201607-mq-rocketmq" target="_blank" rel="noopener">http://valleylord.github.io/post/201607-mq-rocketmq</a></li>
+<li>RocketMq(metaQ)与Kafka: <a href="http://www.liaoqiqi.com/post/232" target="_blank" rel="noopener">http://www.liaoqiqi.com/post/232</a></li>
+</ol>
+<h2 id="Notify"><a href="#Notify" class="headerlink" title="Notify"></a>Notify</h2><ol>
+<li>淘宝的notify是一个非常有特色的消息中间件;它用创新地方式解决了分布式事务的问题,用相对较低的成本,实现了跨micro service的最终一致性;这种把最终一致性用application queue而不是database replication queue的方式来实现,把IT技术层面的跨业务的事务变成一个业务层面的单据传递的概念,非常值得推广</li>
+<li>Notify是淘宝自主研发的一套消息服务引擎,是支撑双11最为核心的系统之一,在淘宝和支付宝的核心交易场景中都有大量使用;消息系统的核心作用就是三点:解耦,异步和并行</li>
+<li>带事务解决方案</li>
+<li>不开源</li>
+</ol>
+<h2 id="Redis"><a href="#Redis" class="headerlink" title="Redis"></a>Redis</h2><ol>
+<li>支持MQ的发布与订阅功能,可以看成是一个Utility,当MQ来用就算了;</li>
+</ol>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><ol>
+<li>企业级应用 优先RabbitMQ ActiveMQ次之</li>
+<li>互联网应用 Kafka &gt; RocketMQ &gt; MetaQ</li>
+</ol>
+<hr>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ol>
+<li><a href="https://blog.csdn.net/konglongaa/article/details/52208273" target="_blank" rel="noopener">https://blog.csdn.net/konglongaa/article/details/52208273</a></li>
+<li><a href="http://www.iteye.com/magazines/107" target="_blank" rel="noopener">http://www.iteye.com/magazines/107</a></li>
+</ol>
+<hr>
+
+      
+    </div>
+    
+    
+    
+
+	<div>
+      
+        
+      
+	</div>
+	
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Message-Queue/" rel="tag"># 消息队列</a>
+          
+            <a href="/tags/Kafka/" rel="tag"># Kafka</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/22/编程-资源-整理/" rel="next" title="编程资源整理">
+                <i class="fa fa-chevron-left"></i> 编程资源整理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/JessicaAlba.jpg"
+                alt="AnoxiaTown" />
+            
+              <p class="site-author-name" itemprop="name">AnoxiaTown</p>
+              <p class="site-description motion-element" itemprop="description">一个善良,缺少些运气的码农</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+            <div class="links-of-author motion-element">
+                
+                  <span class="links-of-author-item">
+                    <a href="https://github.com/AnoxiaTown" target="_blank" title="GitHub">
+                      
+                        <i class="fa fa-fw fa-github"></i>GitHub</a>
+                  </span>
+                
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#MQ的常见用途"><span class="nav-number">1.</span> <span class="nav-text">MQ的常见用途</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MQ用途举例"><span class="nav-number">2.</span> <span class="nav-text">MQ用途举例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS消息服务"><span class="nav-number">3.</span> <span class="nav-text">JMS消息服务</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#P2P模式"><span class="nav-number">3.1.</span> <span class="nav-text">P2P模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pub-Sub模式"><span class="nav-number">3.2.</span> <span class="nav-text">Pub/Sub模式</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ActiveMQ"><span class="nav-number">4.</span> <span class="nav-text">ActiveMQ</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RabbitMQ"><span class="nav-number">5.</span> <span class="nav-text">RabbitMQ</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ZeroMQ"><span class="nav-number">6.</span> <span class="nav-text">ZeroMQ</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kafka"><span class="nav-number">7.</span> <span class="nav-text">Kafka</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#简介"><span class="nav-number">7.1.</span> <span class="nav-text">简介</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#特点"><span class="nav-number">7.2.</span> <span class="nav-text">特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kafka和RabbitMQ比较"><span class="nav-number">7.3.</span> <span class="nav-text">Kafka和RabbitMQ比较</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#抉择"><span class="nav-number">7.4.</span> <span class="nav-text">抉择</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MetaQ"><span class="nav-number">8.</span> <span class="nav-text">MetaQ</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RocketMQ"><span class="nav-number">9.</span> <span class="nav-text">RocketMQ</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Notify"><span class="nav-number">10.</span> <span class="nav-text">Notify</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis"><span class="nav-number">11.</span> <span class="nav-text">Redis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#结论"><span class="nav-number">12.</span> <span class="nav-text">结论</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#参考"><span class="nav-number">13.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AnoxiaTown(瘦马)</span>
+
+  
+</div>
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Pisces</a> v5.1.4</div>
+
+
+
+  <div class="footer-custom">Hosted by <a target="_blank" href="https://pages.github.com">GitHub Pages</a></div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
